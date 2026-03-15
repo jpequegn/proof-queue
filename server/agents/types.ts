@@ -16,8 +16,13 @@ export interface AgentScanEvent {
   reason: string;
 }
 
+export interface AgentThreadCreatedEvent {
+  thread: Thread;
+}
+
 export interface AgentHandler {
   name: string;
   onMention?(event: AgentMentionEvent): void | Promise<void>;
   onScan?(event: AgentScanEvent): void | Promise<void>;
+  onThreadCreated?(event: AgentThreadCreatedEvent): void | Promise<void>;
 }

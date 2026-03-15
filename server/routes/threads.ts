@@ -4,6 +4,7 @@ import { ThreadStore } from "../thread-store.ts";
 import { rankThreads, invalidateCache } from "../ranking/ranking-service.ts";
 import { PROFILES, type ProfileName } from "../ranking/profiles.ts";
 import { getEventPoller } from "../agents/event-poller.ts";
+import { AgentRegistry } from "../agents/registry.ts";
 
 const router = Router();
 const proofClient = new ProofClient();
@@ -55,6 +56,15 @@ router.post("/", async (req, res) => {
 
   // Start polling for events on the new thread
   getEventPoller().startThread(thread);
+
+  // Notify agents of new thread (best-effort, non-blocking)
+  for (const agent of AgentRegistry.all()) {
+    if (agent.onThreadCreated) {
+      Promise.resolve(agent.onThreadCreated({ thread })).catch((err: unknown) => {
+        console.error(`onThreadCreated error for ${agent.name}:`, err);
+      });
+    }
+  }
 
   res.status(201).json({
     ...thread,

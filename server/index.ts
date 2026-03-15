@@ -3,6 +3,9 @@ import { ProofClient } from "./proof-client.ts";
 import { initEventPoller, getEventPoller } from "./agents/event-poller.ts";
 import { handleMentions } from "./agents/mention-parser.ts";
 import { ScheduledScanner } from "./agents/scheduled-scanner.ts";
+import { AgentRegistry } from "./agents/registry.ts";
+import { TriageAgent } from "./agents/triage-agent.ts";
+import { SreAgent } from "./agents/sre-agent.ts";
 
 // Initialize DB (runs migrations on import)
 import "./db/index.ts";
@@ -10,6 +13,10 @@ import "./db/index.ts";
 const app = express();
 const PORT = Number.parseInt(process.env.PORT ?? "3000", 10);
 const proofClient = new ProofClient();
+
+// Register agents
+AgentRegistry.register(new TriageAgent());
+AgentRegistry.register(new SreAgent());
 
 const poller = initEventPoller(proofClient);
 poller.onEvent(handleMentions);
