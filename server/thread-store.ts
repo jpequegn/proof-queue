@@ -125,4 +125,25 @@ export const ThreadStore = {
       .query("SELECT * FROM participants WHERE thread_id = ?")
       .all(threadId) as Participant[];
   },
+
+  updateLastEventId(id: string, lastEventId: number): void {
+    db.run(
+      "UPDATE threads SET last_event_id = ?, updated_at = datetime('now') WHERE id = ?",
+      [lastEventId, id]
+    );
+  },
+
+  findAllOpen(): Thread[] {
+    const rows = db
+      .query("SELECT * FROM threads WHERE status IN ('open', 'in_progress') ORDER BY updated_at DESC")
+      .all() as Record<string, unknown>[];
+    return rows.map(rowToThread);
+  },
+
+  findBySlug(slug: string): Thread | undefined {
+    const row = db.query("SELECT * FROM threads WHERE slug = ?").get(slug) as
+      | Record<string, unknown>
+      | undefined;
+    return row ? rowToThread(row) : undefined;
+  },
 };

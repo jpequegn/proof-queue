@@ -3,6 +3,7 @@ import { ProofClient } from "../proof-client.ts";
 import { ThreadStore } from "../thread-store.ts";
 import { rankThreads, invalidateCache } from "../ranking/ranking-service.ts";
 import { PROFILES, type ProfileName } from "../ranking/profiles.ts";
+import { getEventPoller } from "../agents/event-poller.ts";
 
 const router = Router();
 const proofClient = new ProofClient();
@@ -51,6 +52,9 @@ router.post("/", async (req, res) => {
 
   ThreadStore.addParticipant(thread.id, createdBy, "owner");
   invalidateCache();
+
+  // Start polling for events on the new thread
+  getEventPoller().startThread(thread);
 
   res.status(201).json({
     ...thread,
@@ -139,6 +143,7 @@ router.delete("/:id", (req, res) => {
 
   const closed = ThreadStore.close(thread.id);
   invalidateCache();
+  getEventPoller().stopThread(thread.id);
   res.json(closed);
 });
 
