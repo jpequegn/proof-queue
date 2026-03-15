@@ -1,3 +1,4 @@
+import { Link } from 'react-router-dom'
 import type { Thread } from '../hooks/useThreads'
 
 const STATUS_COLORS: Record<string, string> = {
@@ -20,6 +21,7 @@ export function ThreadCard({ thread }: { thread: Thread }) {
   const statusColor = STATUS_COLORS[thread.status] ?? '#6b7280'
 
   return (
+    <Link to={`/threads/${thread.id}`} className="thread-card-link">
     <div className="thread-card">
       <div className="thread-header">
         <h3 className="thread-title">{thread.title}</h3>
@@ -48,5 +50,6 @@ export function ThreadCard({ thread }: { thread: Thread }) {
         </span>
       </div>
     </div>
+    </Link>
   )
 }
