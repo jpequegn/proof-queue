@@ -2,6 +2,7 @@ import express from "express";
 import { ProofClient } from "./proof-client.ts";
 import { initEventPoller, getEventPoller } from "./agents/event-poller.ts";
 import { handleMentions } from "./agents/mention-parser.ts";
+import { ScheduledScanner } from "./agents/scheduled-scanner.ts";
 
 // Initialize DB (runs migrations on import)
 import "./db/index.ts";
@@ -33,4 +34,5 @@ app.use("/api/threads", threadRoutes);
 app.listen(PORT, () => {
   console.log(`proof-queue listening on http://localhost:${PORT}`);
   getEventPoller().startAll();
+  ScheduledScanner.start();
 });

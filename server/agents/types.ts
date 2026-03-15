@@ -11,7 +11,13 @@ export interface AgentMentionEvent {
   mentionedAgent: string;
 }
 
+export interface AgentScanEvent {
+  thread: Thread;
+  reason: string;
+}
+
 export interface AgentHandler {
   name: string;
   onMention?(event: AgentMentionEvent): void | Promise<void>;
+  onScan?(event: AgentScanEvent): void | Promise<void>;
 }
