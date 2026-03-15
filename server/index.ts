@@ -1,5 +1,9 @@
 import express from "express";
 import { ProofClient } from "./proof-client.ts";
+import threadRoutes from "./routes/threads.ts";
+
+// Initialize DB (runs migrations on import)
+import "./db/index.ts";
 
 const app = express();
 const PORT = Number.parseInt(process.env.PORT ?? "3000", 10);
@@ -11,6 +15,8 @@ app.get("/health", async (_req, res) => {
   const proofSdkReachable = await proofClient.isReachable();
   res.json({ ok: true, proofSdkReachable });
 });
+
+app.use("/api/threads", threadRoutes);
 
 app.listen(PORT, () => {
   console.log(`proof-queue listening on http://localhost:${PORT}`);
