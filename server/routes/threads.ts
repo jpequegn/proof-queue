@@ -5,6 +5,7 @@ import { rankThreads, invalidateCache } from "../ranking/ranking-service.ts";
 import { PROFILES, type ProfileName } from "../ranking/profiles.ts";
 import { getEventPoller } from "../agents/event-poller.ts";
 import { AgentRegistry } from "../agents/registry.ts";
+import { addClient, broadcast } from "../sse.ts";
 
 const router = Router();
 const proofClient = new ProofClient();
@@ -66,6 +67,8 @@ router.post("/", async (req, res) => {
     }
   }
 
+  broadcast("thread:created", thread);
+
   res.status(201).json({
     ...thread,
     proofUrl: doc.url,
@@ -110,6 +113,17 @@ router.get("/", async (req, res) => {
   res.json(threads);
 });
 
+// GET /api/threads/stream — SSE endpoint
+router.get("/stream", (req, res) => {
+  res.writeHead(200, {
+    "Content-Type": "text/event-stream",
+    "Cache-Control": "no-cache",
+    Connection: "keep-alive",
+  });
+  res.write("event: connected\ndata: {}\n\n");
+  addClient(res);
+});
+
 // GET /api/threads/:id — get with participants
 router.get("/:id", (req, res) => {
   const thread = ThreadStore.findById(req.params.id);
@@ -139,6 +153,7 @@ router.patch("/:id", (req, res) => {
   if (status) updated = ThreadStore.updateStatus(thread.id, status) ?? thread;
   if (tags) updated = ThreadStore.updateTags(thread.id, tags) ?? updated;
   invalidateCache();
+  broadcast("thread:updated", updated);
 
   res.json(updated);
 });
@@ -154,6 +169,7 @@ router.delete("/:id", (req, res) => {
   const closed = ThreadStore.close(thread.id);
   invalidateCache();
   getEventPoller().stopThread(thread.id);
+  broadcast("thread:deleted", { id: thread.id });
   res.json(closed);
 });
 
