@@ -6,6 +6,7 @@ import { PROFILES, type ProfileName } from "../ranking/profiles.ts";
 import { getEventPoller } from "../agents/event-poller.ts";
 import { AgentRegistry } from "../agents/registry.ts";
 import { addClient, broadcast } from "../sse.ts";
+import { notifyThreadCreated } from "../slack/slack-app.ts";
 
 const router = Router();
 const proofClient = new ProofClient();
@@ -68,6 +69,7 @@ router.post("/", async (req, res) => {
   }
 
   broadcast("thread:created", thread);
+  notifyThreadCreated(thread).catch(() => {});
 
   res.status(201).json({
     ...thread,

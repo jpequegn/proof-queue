@@ -6,6 +6,7 @@ import { ScheduledScanner } from "./agents/scheduled-scanner.ts";
 import { AgentRegistry } from "./agents/registry.ts";
 import { TriageAgent } from "./agents/triage-agent.ts";
 import { SreAgent } from "./agents/sre-agent.ts";
+import { initSlack } from "./slack/slack-app.ts";
 
 // Initialize DB (runs migrations on import)
 import "./db/index.ts";
@@ -39,6 +40,9 @@ app.get("/health", async (_req, res) => {
 
 app.use("/api/threads", threadRoutes);
 app.use("/api/threads/:id/invite", inviteRoutes);
+
+// Initialize Slack (no-op if SLACK_BOT_TOKEN not set)
+initSlack(app);
 
 app.listen(PORT, () => {
   console.log(`proof-queue listening on http://localhost:${PORT}`);

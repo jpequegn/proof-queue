@@ -19,6 +19,7 @@
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.78.0",
+    "@slack/bolt": "^4.6.0",
     "express": "^5.2.1",
     "uuid": "^13.0.0"
   }
