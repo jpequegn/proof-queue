@@ -1,6 +1,7 @@
 import express from "express";
 import { ProofClient } from "./proof-client.ts";
 import { initEventPoller, getEventPoller } from "./agents/event-poller.ts";
+import { handleMentions } from "./agents/mention-parser.ts";
 
 // Initialize DB (runs migrations on import)
 import "./db/index.ts";
@@ -9,7 +10,8 @@ const app = express();
 const PORT = Number.parseInt(process.env.PORT ?? "3000", 10);
 const proofClient = new ProofClient();
 
-initEventPoller(proofClient);
+const poller = initEventPoller(proofClient);
+poller.onEvent(handleMentions);
 
 // Import routes after poller is initialized
 const { default: threadRoutes } = await import("./routes/threads.ts");
