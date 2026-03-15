@@ -1,5 +1,7 @@
 import { ProofClient } from "../proof-client.ts";
-import type { Thread } from "../thread-store.ts";
+import { ThreadStore, type Thread } from "../thread-store.ts";
+import { AgentRegistry } from "./registry.ts";
+import { getEventPoller } from "./event-poller.ts";
 import type {
   AgentHandler,
   AgentMentionEvent,
@@ -33,6 +35,33 @@ export abstract class BaseAgent implements AgentHandler {
       status,
       details,
     });
+  }
+
+  /** Helper: invite a human or agent into a thread. */
+  protected async invite(
+    thread: Thread,
+    identity: string,
+    reason: string
+  ): Promise<void> {
+    const [type, name] = identity.split(":", 2);
+    if (!type || !name) return;
+
+    const role = type === "ai" ? "agent" : "member";
+    ThreadStore.addParticipant(thread.id, name, role);
+
+    try {
+      await proofClient.addComment(thread.slug, {
+        by: `ai:${this.name}`,
+        quote: "",
+        text: `**@${name}** was invited by @${this.name}: _${reason}_`,
+      });
+    } catch {
+      // Non-fatal
+    }
+
+    if (type === "ai" && AgentRegistry.has(name)) {
+      getEventPoller().startThread(thread);
+    }
   }
 
   // Default no-op implementations — subclasses override as needed

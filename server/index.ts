@@ -23,6 +23,7 @@ poller.onEvent(handleMentions);
 
 // Import routes after poller is initialized
 const { default: threadRoutes } = await import("./routes/threads.ts");
+const { default: inviteRoutes } = await import("./routes/invites.ts");
 
 app.use(express.json());
 
@@ -37,6 +38,7 @@ app.get("/health", async (_req, res) => {
 });
 
 app.use("/api/threads", threadRoutes);
+app.use("/api/threads/:id/invite", inviteRoutes);
 
 app.listen(PORT, () => {
   console.log(`proof-queue listening on http://localhost:${PORT}`);
