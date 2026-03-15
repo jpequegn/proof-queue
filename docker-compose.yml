@@ -1,0 +1,21 @@
+services:
+  proof-sdk:
+    build:
+      context: ./proof-sdk
+      dockerfile: ../proof-sdk.Dockerfile
+    ports:
+      - "4000:4000"
+    environment:
+      - PORT=4000
+
+  proof-queue:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "3000:3000"
+    environment:
+      - PORT=3000
+      - PROOF_SDK_URL=http://proof-sdk:4000
+    depends_on:
+      - proof-sdk

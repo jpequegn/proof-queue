@@ -1,0 +1,3 @@
+[submodule "proof-sdk"]
+	path = proof-sdk
+	url = https://github.com/EveryInc/proof-sdk.git
