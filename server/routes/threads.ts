@@ -1,6 +1,8 @@
 import { Router } from "express";
 import { ProofClient } from "../proof-client.ts";
 import { ThreadStore } from "../thread-store.ts";
+import { rankThreads, invalidateCache } from "../ranking/ranking-service.ts";
+import { PROFILES, type ProfileName } from "../ranking/profiles.ts";
 
 const router = Router();
 const proofClient = new ProofClient();
@@ -48,6 +50,7 @@ router.post("/", async (req, res) => {
   }
 
   ThreadStore.addParticipant(thread.id, createdBy, "owner");
+  invalidateCache();
 
   res.status(201).json({
     ...thread,
@@ -55,10 +58,41 @@ router.post("/", async (req, res) => {
   });
 });
 
-// GET /api/threads — list all (optionally filter by status)
-router.get("/", (_req, res) => {
-  const status = _req.query.status as string | undefined;
+// GET /api/threads — list all, optionally ranked by profile
+router.get("/", async (req, res) => {
+  const status = req.query.status as string | undefined;
+  const profile = req.query.profile as string | undefined;
   const threads = ThreadStore.findAll(status);
+
+  if (profile) {
+    if (!(profile in PROFILES)) {
+      res.status(400).json({
+        error: `Invalid profile. Valid profiles: ${Object.keys(PROFILES).join(", ")}`,
+      });
+      return;
+    }
+
+    try {
+      const ranked = await rankThreads(threads, profile as ProfileName);
+      const rankMap = new Map(ranked.map((r) => [r.threadId, r]));
+      const result = threads
+        .map((t) => {
+          const rank = rankMap.get(t.id);
+          return {
+            ...t,
+            priority: rank
+              ? { score: rank.score, reason: rank.reason }
+              : { score: 0, reason: "unranked" },
+          };
+        })
+        .sort((a, b) => b.priority.score - a.priority.score);
+      res.json(result);
+    } catch (err) {
+      res.status(502).json({ error: "Ranking failed", details: String(err) });
+    }
+    return;
+  }
+
   res.json(threads);
 });
 
@@ -90,6 +124,7 @@ router.patch("/:id", (req, res) => {
   let updated = thread;
   if (status) updated = ThreadStore.updateStatus(thread.id, status) ?? thread;
   if (tags) updated = ThreadStore.updateTags(thread.id, tags) ?? updated;
+  invalidateCache();
 
   res.json(updated);
 });
@@ -103,6 +138,7 @@ router.delete("/:id", (req, res) => {
   }
 
   const closed = ThreadStore.close(thread.id);
+  invalidateCache();
   res.json(closed);
 });
 
