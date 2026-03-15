@@ -240,3 +240,165 @@ body { margin: 0; }
 .error {
   color: var(--red);
 }
+
+/* Thread card link */
+.thread-card-link {
+  text-decoration: none;
+  color: inherit;
+}
+
+/* Thread Detail Page */
+.thread-page {
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  padding: 16px;
+}
+
+.thread-page-header {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 16px;
+  flex-shrink: 0;
+}
+
+.thread-page-header h1 {
+  font-size: 20px;
+  font-weight: 600;
+  color: var(--text);
+  margin: 0;
+}
+
+.thread-page-tags {
+  display: flex;
+  gap: 4px;
+}
+
+.back-link {
+  color: var(--accent);
+  text-decoration: none;
+  font-size: 13px;
+  white-space: nowrap;
+}
+
+.back-link:hover {
+  color: var(--accent-hover);
+}
+
+/* Thread Layout */
+.thread-layout {
+  display: flex;
+  gap: 16px;
+  flex: 1;
+  min-height: 0;
+}
+
+.thread-editor {
+  flex: 1;
+  min-width: 0;
+}
+
+.proof-iframe {
+  width: 100%;
+  height: 100%;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: white;
+}
+
+/* Sidebar */
+.thread-sidebar {
+  width: 280px;
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  overflow-y: auto;
+}
+
+.thread-sidebar h3 {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text);
+  margin-bottom: 8px;
+}
+
+/* Participants */
+.participant-list ul {
+  list-style: none;
+  padding: 0;
+}
+
+.participant-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 0;
+  border-bottom: 1px solid var(--border);
+  font-size: 13px;
+}
+
+.participant-name {
+  flex: 1;
+  color: var(--text);
+}
+
+.participant-role {
+  font-size: 11px;
+  color: var(--text-muted);
+  text-transform: uppercase;
+}
+
+.participants-empty {
+  font-size: 13px;
+  color: var(--text-muted);
+}
+
+/* Invite Form */
+.invite-form {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.invite-form input {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  color: var(--text);
+  padding: 6px 10px;
+  border-radius: 6px;
+  font-size: 12px;
+}
+
+.invite-form input:focus {
+  outline: none;
+  border-color: var(--accent);
+}
+
+.invite-form button {
+  background: var(--accent);
+  color: white;
+  border: none;
+  padding: 6px 12px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 12px;
+}
+
+/* Status Dropdown */
+.status-dropdown select {
+  width: 100%;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  color: var(--text);
+  padding: 6px 10px;
+  border-radius: 6px;
+  font-size: 13px;
+  cursor: pointer;
+}
+
+.status-dropdown select:focus {
+  outline: none;
+  border-color: var(--accent);
+}
