@@ -1,0 +1,18 @@
+{
+  "name": "pq",
+  "module": "src/main.ts",
+  "type": "module",
+  "bin": {
+    "pq": "src/main.ts"
+  },
+  "devDependencies": {
+    "@types/bun": "latest"
+  },
+  "peerDependencies": {
+    "typescript": "^5"
+  },
+  "dependencies": {
+    "commander": "^14.0.3",
+    "open": "^11.0.0"
+  }
+}
