@@ -15,7 +15,7 @@ interface CreateDocumentResult {
   docId: string;
 }
 
-interface DocumentState {
+export interface DocumentState {
   slug: string;
   markdown: string;
   title: string;
@@ -50,6 +50,38 @@ interface AddCommentOptions {
   by: string;
   quote: string;
   text: string;
+}
+
+export interface DocumentSnapshot {
+  revision: number;
+  blocks: Array<{ ref: string; markdown: string; node_type: string }>;
+}
+
+export interface SuggestReplaceOptions {
+  by: string;
+  quote: string;
+  content: string;
+}
+
+export interface SuggestInsertOptions {
+  by: string;
+  after?: string;
+  content: string;
+}
+
+export interface EditBlockOperation {
+  op: "replace_block" | "insert_after" | "insert_before" | "delete_block";
+  ref?: string;
+  afterRef?: string;
+  beforeRef?: string;
+  markdown?: string;
+}
+
+export interface EditBlocksOptions {
+  by: string;
+  baseRevision: number;
+  operations: EditBlockOperation[];
+  agentId?: string;
 }
 
 export class ProofClient {
@@ -135,6 +167,67 @@ export class ProofClient {
 
     if (!res.ok) {
       throw new Error(`addComment failed: ${res.status} ${res.statusText}`);
+    }
+  }
+
+  async getSnapshot(slug: string, token?: string): Promise<DocumentSnapshot> {
+    const url = new URL(`${this.baseUrl}/documents/${slug}/snapshot`);
+    if (token) url.searchParams.set("token", token);
+
+    const res = await fetch(url.toString());
+
+    if (!res.ok) {
+      throw new Error(`getSnapshot failed: ${res.status} ${res.statusText}`);
+    }
+
+    return res.json() as Promise<DocumentSnapshot>;
+  }
+
+  async suggestReplace(
+    slug: string,
+    options: SuggestReplaceOptions
+  ): Promise<void> {
+    const res = await fetch(
+      `${this.baseUrl}/documents/${slug}/marks/suggest-replace`,
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(options),
+      }
+    );
+
+    if (!res.ok) {
+      throw new Error(`suggestReplace failed: ${res.status} ${res.statusText}`);
+    }
+  }
+
+  async suggestInsert(
+    slug: string,
+    options: SuggestInsertOptions
+  ): Promise<void> {
+    const res = await fetch(
+      `${this.baseUrl}/documents/${slug}/marks/suggest-insert`,
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(options),
+      }
+    );
+
+    if (!res.ok) {
+      throw new Error(`suggestInsert failed: ${res.status} ${res.statusText}`);
+    }
+  }
+
+  async editBlocks(slug: string, options: EditBlocksOptions): Promise<void> {
+    const res = await fetch(`${this.baseUrl}/documents/${slug}/edit/v2`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(options),
+    });
+
+    if (!res.ok) {
+      throw new Error(`editBlocks failed: ${res.status} ${res.statusText}`);
     }
   }
 

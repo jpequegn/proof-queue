@@ -6,6 +6,7 @@ import { ScheduledScanner } from "./agents/scheduled-scanner.ts";
 import { AgentRegistry } from "./agents/registry.ts";
 import { TriageAgent } from "./agents/triage-agent.ts";
 import { SreAgent } from "./agents/sre-agent.ts";
+import { ResearchAgent } from "./agents/research-agent.ts";
 import { initSlack } from "./slack/slack-app.ts";
 
 // Initialize DB (runs migrations on import)
@@ -18,6 +19,7 @@ const proofClient = new ProofClient();
 // Register agents
 AgentRegistry.register(new TriageAgent());
 AgentRegistry.register(new SreAgent());
+AgentRegistry.register(new ResearchAgent());
 
 const poller = initEventPoller(proofClient);
 poller.onEvent(handleMentions);
